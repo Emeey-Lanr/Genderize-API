@@ -10,7 +10,7 @@ const Router = express.Router()
 
 
 
-app.use("/classify", Classify(Router))
+app.use("/api", Classify(Router))
 
 app.use((_, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
