@@ -9,7 +9,7 @@ A simple REST API that predicts the gender of a given name using the Genderize A
 Base URL:
 
 ```
-https://your-deployed-url.com
+https://genderize-api-production-91f1.up.railway.app/
 ```
 
 Example Endpoint:
