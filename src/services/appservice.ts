@@ -81,4 +81,20 @@ export class Service {
     }
 
   }
+
+  static async GetProfile (id:any){
+    try {
+        const profile = await prisma.profile.findUnique({
+            where:{
+                id
+            }
+        })
+        if (profile == null){
+            return {error: "Profile not found", status: 404, data: null}
+        }
+        return {error: null, status: 200, data: profile}
+    } catch (error) {
+        return  {error: "An error occurred", status: 500, data: null}
+    }
+  }
 }

@@ -26,17 +26,32 @@ export const CreateProfile =  async (req:Request, res:Response)=>{
    }
 }
  
-export const CheckProfile = (req:Request, res:Response)=>{
+export const CheckProfile = async (req:Request, res:Response)=>{
    try {
-      
+      const {id} = req.params
+         if (id == null){ 
+            AppResponse(res, 400, {status:"error", message:"Invalid request parameters"})
+            return
+         }
+
+         const getProfile = await Service.GetProfile(id)
+         if (getProfile.error != null){
+            AppResponse(res, getProfile.status, {status:"error", message:getProfile.error})
+            return
+         }
+         AppResponse(res, 200, {status:"success", data: getProfile.data})
+        return
    } catch (error) {
-      
+      AppResponse(res, 500, {status:"error", message:"An error occurred", data: null})
+       return
    }
 }
 
-export const GetAllProfiles = (req:Request, res:Response)=>{
+export const GetAllProfiles = async (req:Request, res:Response)=>{
    try {
-      
+      console.log(req.query)
+      const {gender, country_id, age_group} = req.query
+     
    } catch (error) {
       
    }
