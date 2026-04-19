@@ -2,4 +2,13 @@
 /src/generated/prisma
 /.env
 
-/generated/prisma
+/generated/prisma/internal
+
+/generated/prisma/models
+
+
+
+
+
+
+
