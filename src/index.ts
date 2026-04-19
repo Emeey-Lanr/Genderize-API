@@ -1,27 +1,23 @@
-import express from "express"
-import { Classify } from "./routes/classify"
-
+import express, {Request, Response} from "express"
+import { AppMiddleWare } from "./middleware/appmiddleware"
+import { AppRouter } from "./routes/router"
+import "dotenv/config"
 
 const app = express()
- 
-const Router = express.Router()
-
-// Routes
 
 
-
-app.use("/api", Classify(Router))
-
-app.use((_, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  next();
-});
+AppMiddleWare(app)
+AppRouter(app)
 
 
-app.listen(4000, (err)=>{
+app.post("/yes", (req:Request, res:Response)=>{
+   console.log(req)
+})
+
+app.listen(`${process.env.PORT}`, (err)=>{
    if (err){
     console.log(err, "yes")
    
    }
-    console.log("App is listening at 4000 ")
+  console.log("App starting at:",process.env.PORT)
 })

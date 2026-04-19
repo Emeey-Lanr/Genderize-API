@@ -1,50 +1,51 @@
 import { Request, Response } from "express";
-import { ClassifyResponse } from "../utilis/response";
-import { GetGender } from "../external/genderAPI";
-
-export const ClassifyUser =  async (req:Request, res:Response)=>{
+import { AppResponse } from "../utilis/response";
+import { ValidateProfileSchema } from "../utilis/validation";
+import { Service } from "../services/appservice";
+export const CreateProfile =  async (req:Request, res:Response)=>{
    try {
-      // QUERY VALIDATION
-       const {name} = req.query
-       if (name === undefined || name === ""){
-         ClassifyResponse(res, 400, "error", null, "Bad Request")
-       }
-       
-     
-      if (typeof (name) !== "string"){
-         ClassifyResponse(res, 422, "error", null, "Unprocessable Entity")
+       const parsed =  ValidateProfileSchema.safeParse(req.body)
+      if (!parsed.success){
+       AppResponse(res, 400, {status:"error", message:"Invalid request body", })  
+      }
+      
+
+      const profileCreation =  await Service.CreateProfile(`${req.body.name}`)
+      if (profileCreation.error != null){
+         
+        
+         AppResponse(res, profileCreation.status,  profileCreation.data != null ? {status: "success", message:profileCreation.error, data: profileCreation.data} : {status: "error", message:profileCreation.error, })
+         return
       }
 
-
-      // FETCH API
-     const genderData = await GetGender(`${name}`)   
-  
-     if (genderData.count === 0 && genderData.gender === null){
-      ClassifyResponse(res, 422, "error", null, "No prediction available for the provided name")
-     }
-
-     let is_confident = false
-     if (genderData.count >= 100 && genderData.probability >= 0.7){
-     is_confident = true
-     }
-
-     console.log(genderData)
-
-     const date = new Date
-      
-     let data = {
-       name,
-  "gender": genderData.gender,
-  "probability": genderData.probability,
-  "sample_size": genderData.count,
-  is_confident,
-  "processed_at": date.toISOString()
-  }
-     
-  ClassifyResponse(res, 200, "success", data, null)
-   
+      AppResponse(res, 201, {status:"success", data: profileCreation.data})
+      return
    } catch (error) {
-       ClassifyResponse(res, 500, "error", null, "Internal Server Error")
+      AppResponse(res, 500, {status:"error", message:"An error occurred", data: null})
+       return
    }
+}
  
+export const CheckProfile = (req:Request, res:Response)=>{
+   try {
+      
+   } catch (error) {
+      
+   }
+}
+
+export const GetAllProfiles = (req:Request, res:Response)=>{
+   try {
+      
+   } catch (error) {
+      
+   }
+}
+
+export const DeleteProfile = (req:Request, res:Response)=>{
+   try {
+      
+   } catch (error) {
+      
+   }
 }
