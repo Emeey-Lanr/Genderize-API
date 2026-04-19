@@ -68,10 +68,20 @@ export const GetAllProfiles = async (req:Request, res:Response)=>{
    }
 }
 
-export const DeleteProfile = (req:Request, res:Response)=>{
+export const DeleteProfile = async(req:Request, res:Response)=>{
    try {
-      
+         const {id} = req.params 
+
+      const deletedProfile = await Service.DeleteProfile(id)
+      if (deletedProfile?.error != null){
+         AppResponse(res, deletedProfile.status, {status:"error", message:deletedProfile.error})
+         return
+      } 
+
+      AppResponse(res, deletedProfile.status, null)
+      return
+
    } catch (error) {
-      
+      AppResponse(res, 500, {status:"error", message:"An error occurred", data: null})
    }
 }

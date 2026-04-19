@@ -99,7 +99,7 @@ export class Service {
     }
   }
 
-  
+
   static async GetAllProfiles (query:Query){
     try {
         if (query == null){
@@ -135,6 +135,21 @@ export class Service {
         return {error: null, status: 200, data: profiles}
     } catch (error) {
         return  {error: "An error occurred", status: 500, data: null}
+    }
+}
+
+static async DeleteProfile (id:any){
+    try {
+        const profile = await prisma.profile.delete({
+            where:{
+                id
+            }
+        })
+    
+        return {error: null, status: 204, data: profile}
+       
+    }catch(error){
+    return  {error: "An error occurred", status: 500, data: null}
     }
 }
 }

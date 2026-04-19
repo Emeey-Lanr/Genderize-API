@@ -6,7 +6,7 @@ export function Classify (app:Router){
   app.post("/profiles", CreateProfile)
   app.get("/profiles/:id",CheckProfile)
   app.get("/profiles", GetAllProfiles)
-  app.delete("/profile/:id", DeleteProfile)
+  app.delete("/profiles/:id", DeleteProfile)
 
   return app
 }
