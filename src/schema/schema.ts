@@ -12,3 +12,6 @@ export type Nationality = {
 export type Age = {
     age: number
 }
+
+export type Query = {gender:string, 
+   country_id:string, age_group:string, }

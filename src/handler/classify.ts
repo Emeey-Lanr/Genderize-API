@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AppResponse } from "../utilis/response";
 import { ValidateProfileSchema } from "../utilis/validation";
 import { Service } from "../services/appservice";
+import { Query } from "../schema/schema";
 export const CreateProfile =  async (req:Request, res:Response)=>{
    try {
        const parsed =  ValidateProfileSchema.safeParse(req.body)
@@ -50,10 +51,20 @@ export const CheckProfile = async (req:Request, res:Response)=>{
 export const GetAllProfiles = async (req:Request, res:Response)=>{
    try {
       console.log(req.query)
-      const {gender, country_id, age_group} = req.query
-     
-   } catch (error) {
+      const query = req.query
+      const getProfiles = await Service.GetAllProfiles(query as Query )
       
+      if (getProfiles.error != null){
+         AppResponse(res, getProfiles.status, {status:"error", message:getProfiles.error})
+         return
+      }
+      AppResponse(res, 200, {status:"success", count:getProfiles.data.length, data: getProfiles.data})
+      return
+     
+
+   } catch (error) {
+      AppResponse(res, 500, {status:"error", message:"An error occurred", data: null})
+       return
    }
 }
 

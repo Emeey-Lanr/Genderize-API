@@ -1,7 +1,8 @@
 ;
 import { prisma } from "../lib/prisma";
 import { API } from "../external/api";
-import { Age, Gender, Nationality } from "../schema/schema";
+import { Age, Gender, Nationality, Query } from "../schema/schema";
+import { format } from "node:path";
 
 export class Service {
   static async CreateProfile (name:string){
@@ -97,4 +98,43 @@ export class Service {
         return  {error: "An error occurred", status: 500, data: null}
     }
   }
+
+  
+  static async GetAllProfiles (query:Query){
+    try {
+        if (query == null){
+            return {error: "Invalid query parameters", status: 400, data: null}
+        }
+
+        const kesss = ["gender", "country_id", "age_group"]
+        console.log(kesss.includes("gender"))
+
+        let sievedQuery = {}
+        Object.keys(query).find((key, value)=>{
+           if(!kesss.includes(key)){
+            
+            return {error: "Invalid query parameters", status: 400, data: null}
+           }
+           if (query[key as keyof Query] == null){
+            return {error: "Invalid query parameters", status: 400, data: null}
+           }
+           sievedQuery = {...sievedQuery, [key]: query[key as keyof Query]}
+        })
+
+        
+   
+    
+        const profiles = await prisma.profile.findMany({
+            where: sievedQuery
+        })
+        
+        if (profiles.length == 0){  
+            return {error: "No profiles found matching the query parameters", status: 404, data: null}
+        }
+
+        return {error: null, status: 200, data: profiles}
+    } catch (error) {
+        return  {error: "An error occurred", status: 500, data: null}
+    }
+}
 }
