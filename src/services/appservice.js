@@ -1,0 +1,130 @@
+;
+import { prisma } from "../lib/prisma";
+import { API } from "../external/api";
+export class Service {
+    static async CreateProfile(name) {
+        try {
+            const gender = await API.GetGender(name);
+            const nationality = await API.GetNationality(name);
+            const age = await API.GetAge(name);
+            // check if user exist
+            const user = await prisma.profile.findFirst({
+                where: {
+                    name: name
+                }
+            });
+            if (user != null) {
+                return { error: "Profile already exist", status: 201, data: user };
+            }
+            //Genderize returns gender: null or count: 0
+            if (gender.gender == null || gender.count == 0) {
+                return { error: "Genderize returned an invalid response", status: 502, data: null };
+            }
+            // Agify returns age null
+            if (age.age == null) {
+                return { error: "Agifyreturned an invalid response", status: 502, data: null };
+            }
+            // Nationalize returns no country data
+            if (nationality.country.length == 0) {
+                return { error: "Nationalize returned an invalid response", status: 502, data: null };
+            }
+            let highest = 0;
+            let country = "";
+            nationality.country.map((value, _) => {
+                if (value.probability > highest) {
+                    highest = value.probability;
+                    country = value.country_id;
+                }
+            });
+            let ageGrade = "";
+            if (age.age <= 12) {
+                ageGrade = "child";
+            }
+            else if (age.age <= 19) {
+                ageGrade = "teenager";
+            }
+            else if (age.age <= 59) {
+                ageGrade = "adult";
+            }
+            else {
+                ageGrade = "senior";
+            }
+            const data = {
+                name: name,
+                gender: gender.gender,
+                gender_probability: gender.probability,
+                sample_size: gender.count,
+                age: age.age,
+                age_group: ageGrade,
+                country_id: country,
+                country_probability: highest
+            };
+            console.log(data);
+            const profile = await prisma.profile.create({
+                data
+            });
+            return { error: null, status: 201, data: profile };
+        }
+        catch (error) {
+            return { error: "An error occurred", status: 500, data: null };
+        }
+    }
+    static async GetProfile(id) {
+        try {
+            const profile = await prisma.profile.findUnique({
+                where: {
+                    id
+                }
+            });
+            if (profile == null) {
+                return { error: "Profile not found", status: 404, data: null };
+            }
+            return { error: null, status: 200, data: profile };
+        }
+        catch (error) {
+            return { error: "An error occurred", status: 500, data: null };
+        }
+    }
+    static async GetAllProfiles(query) {
+        try {
+            if (query == null) {
+                return { error: "Invalid query parameters", status: 400, data: null };
+            }
+            const kesss = ["gender", "country_id", "age_group"];
+            console.log(kesss.includes("gender"));
+            let sievedQuery = {};
+            Object.keys(query).find((key, value) => {
+                if (!kesss.includes(key)) {
+                    return { error: "Invalid query parameters", status: 400, data: null };
+                }
+                if (query[key] == null) {
+                    return { error: "Invalid query parameters", status: 400, data: null };
+                }
+                sievedQuery = { ...sievedQuery, [key]: query[key] };
+            });
+            const profiles = await prisma.profile.findMany({
+                where: sievedQuery
+            });
+            if (profiles.length == 0) {
+                return { error: "No profiles found matching the query parameters", status: 404, data: null };
+            }
+            return { error: null, status: 200, data: profiles };
+        }
+        catch (error) {
+            return { error: "An error occurred", status: 500, data: null };
+        }
+    }
+    static async DeleteProfile(id) {
+        try {
+            const profile = await prisma.profile.delete({
+                where: {
+                    id
+                }
+            });
+            return { error: null, status: 204, data: profile };
+        }
+        catch (error) {
+            return { error: "An error occurred", status: 500, data: null };
+        }
+    }
+}
